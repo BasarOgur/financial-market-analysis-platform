@@ -1,0 +1,16 @@
+[project]
+name = "fma-shared"
+version = "0.1.0"
+description = "Shared infrastructure for the financial market-analysis platform: provider-agnostic LLM + embedding clients, config, logging, inter-module contracts."
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.7",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["shared"]

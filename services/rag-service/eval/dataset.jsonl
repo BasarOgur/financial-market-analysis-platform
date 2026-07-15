@@ -1,0 +1,14 @@
+{"id": "q01", "question": "What was Meridian Semiconductors' total revenue in fiscal 2025 and how much did it grow?", "answerable": true, "gold_doc_id": "meridian_10k_fy2025_mdna", "gold_spans": ["$4.82 billion", "18.1%"]}
+{"id": "q02", "question": "Which of Meridian's segments grew fastest in fiscal 2025, and by how much?", "answerable": true, "gold_doc_id": "meridian_10k_fy2025_mdna", "gold_spans": ["increase of 41%"]}
+{"id": "q03", "question": "How did Meridian's gross margin change in fiscal 2025 and what drove it?", "answerable": true, "gold_doc_id": "meridian_10k_fy2025_mdna", "gold_spans": ["58.2%", "230 basis point"]}
+{"id": "q04", "question": "How concentrated is Meridian's customer base?", "answerable": true, "gold_doc_id": "meridian_10k_fy2025_risks", "gold_spans": ["31% of total revenue"]}
+{"id": "q05", "question": "What is Meridian Semiconductors' revenue exposure to China?", "answerable": true, "gold_doc_id": "meridian_10k_fy2025_risks", "gold_spans": ["China represented 22%"]}
+{"id": "q06", "question": "What share of Northwind Retail Group's sales came from digital commerce in the third quarter?", "answerable": true, "gold_doc_id": "northwind_10q_q3_fy2025", "gold_spans": ["28% of total net sales"]}
+{"id": "q07", "question": "What were Northwind's comparable store sales in Q3 fiscal 2025?", "answerable": true, "gold_doc_id": "northwind_10q_q3_fy2025", "gold_spans": ["1.8%"]}
+{"id": "q08", "question": "What revenue guidance did Northwind give for the fourth quarter?", "answerable": true, "gold_doc_id": "northwind_call_q3_fy2025", "gold_spans": ["$10.2 billion to $10.6 billion"]}
+{"id": "q09", "question": "How much share repurchase authorization does Northwind have remaining?", "answerable": true, "gold_doc_id": "northwind_call_q3_fy2025", "gold_spans": ["$500 million remaining"]}
+{"id": "q10", "question": "What is Helios Energy's battery storage attach rate and how has it changed?", "answerable": true, "gold_doc_id": "helios_call_q2_fy2025", "gold_spans": ["38% in the quarter"]}
+{"id": "q11", "question": "What full-year installation guidance did Helios Energy provide?", "answerable": true, "gold_doc_id": "helios_call_q2_fy2025", "gold_spans": ["9.5 to 10.0 gigawatts"]}
+{"id": "q12", "question": "Describe Helios Energy's liquidity position at the end of the second quarter.", "answerable": true, "gold_doc_id": "helios_10q_q2_fy2025_liquidity", "gold_spans": ["$1.9 billion in cash", "$750 million senior revolving credit facility"]}
+{"id": "q13", "question": "What was Meridian Semiconductors' employee headcount at fiscal year end?", "answerable": false, "gold_doc_id": null, "gold_spans": []}
+{"id": "q14", "question": "What did Acme Cloud Systems report for first quarter revenue?", "answerable": false, "gold_doc_id": null, "gold_spans": []}

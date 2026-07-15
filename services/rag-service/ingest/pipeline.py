@@ -1,0 +1,88 @@
+"""Ingestion pipeline: fixture docs -> chunks -> embeddings -> Chroma.
+
+Documents are markdown files with a minimal frontmatter block:
+
+    ---
+    company: Meridian Semiconductors
+    doc_type: 10-K
+    period: FY2025
+    section: MD&A
+    ---
+    <body>
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+
+from shared.embeddings import EmbeddingClient
+from shared.logging import get_logger
+
+from .chunker import Chunk, chunk_text
+
+log = get_logger("rag.ingest")
+
+
+@dataclass
+class Document:
+    doc_id: str
+    text: str
+    meta: dict
+
+
+@dataclass
+class IngestStats:
+    documents: int
+    chunks: int
+
+
+def _parse_frontmatter(raw: str) -> tuple[dict, str]:
+    if not raw.startswith("---"):
+        return {}, raw
+    try:
+        _, header, body = raw.split("---", 2)
+    except ValueError:
+        return {}, raw
+    meta = {}
+    for line in header.strip().splitlines():
+        key, _, value = line.partition(":")
+        if value:
+            meta[key.strip()] = value.strip()
+    return meta, body.strip()
+
+
+def load_documents(data_dir: str | Path) -> list[Document]:
+    docs = []
+    for path in sorted(Path(data_dir).glob("*.md")):
+        meta, body = _parse_frontmatter(path.read_text())
+        meta["source"] = " ".join(
+            filter(None, (meta.get("company"), meta.get("doc_type"), meta.get("period"), meta.get("section")))
+        ) or path.stem
+        docs.append(Document(doc_id=path.stem, text=body, meta=meta))
+    if not docs:
+        raise FileNotFoundError(f"no .md documents found in {data_dir}")
+    return docs
+
+
+def chunk_documents(docs: list[Document]) -> list[Chunk]:
+    chunks: list[Chunk] = []
+    for doc in docs:
+        chunks.extend(chunk_text(doc.text, doc.doc_id, doc.meta))
+    return chunks
+
+
+def ingest(data_dir: str | Path, collection, embedder: EmbeddingClient) -> IngestStats:
+    """Chunk every document in data_dir and upsert into the Chroma collection."""
+    docs = load_documents(data_dir)
+    chunks = chunk_documents(docs)
+    log.info("embedding %d chunks from %d documents", len(chunks), len(docs))
+    vectors = embedder.embed([c.text for c in chunks], task="document")
+    collection.upsert(
+        ids=[c.chunk_id for c in chunks],
+        embeddings=vectors,
+        documents=[c.text for c in chunks],
+        metadatas=[c.meta for c in chunks],
+    )
+    log.info("ingested %d chunks into collection %r", len(chunks), collection.name)
+    return IngestStats(documents=len(docs), chunks=len(chunks))

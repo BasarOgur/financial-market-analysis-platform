@@ -1,0 +1,7 @@
+# rag-service runs in place (not installed) to keep generic top-level names
+# (ingest, retrieval, api) out of the shared venv. See DECISIONS.md #2.
+-e ../../packages/shared
+fastapi>=0.115
+uvicorn[standard]>=0.30
+chromadb>=1.0
+pytest>=8.0

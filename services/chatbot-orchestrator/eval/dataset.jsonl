@@ -1,0 +1,10 @@
+{"id": "o01", "message": "How fast did Meridian's data center segment grow?", "expected_tool": "query_financial_documents"}
+{"id": "o02", "message": "What full-year installation guidance did Helios Energy provide?", "expected_tool": "query_financial_documents"}
+{"id": "o03", "message": "What were Northwind's comparable store sales in Q3 fiscal 2025?", "expected_tool": "query_financial_documents"}
+{"id": "o04", "message": "Summarize Meridian's foundry dependence risk from its 10-K.", "expected_tool": "query_financial_documents"}
+{"id": "o05", "message": "Classify this headline: Northwind beat estimates and raised guidance.", "expected_tool": "classify_financial_news"}
+{"id": "o06", "message": "Is this bullish or bearish: regulators opened an investigation into Lakeside Insurance.", "expected_tool": "classify_financial_news"}
+{"id": "o07", "message": "What's the sentiment and topic of: Aster Pharma agreed to buy a gene-therapy startup?", "expected_tool": "classify_financial_news"}
+{"id": "o08", "message": "Hello, what can you help me with?", "expected_tool": null}
+{"id": "o09", "message": "Should I buy Meridian stock right now?", "expected_tool": null}
+{"id": "o10", "message": "What's the weather like today?", "expected_tool": null}

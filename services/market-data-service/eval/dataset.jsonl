@@ -1,0 +1,7 @@
+{"id": "m01", "ticker": "AAPL", "expect_found": true}
+{"id": "m02", "ticker": "MSFT", "expect_found": true}
+{"id": "m03", "ticker": "GOOGL", "expect_found": true}
+{"id": "m04", "ticker": "AMZN", "expect_found": true}
+{"id": "m05", "ticker": "TSLA", "expect_found": true}
+{"id": "m06", "ticker": "NOTREAL1", "expect_found": false}
+{"id": "m07", "ticker": "ZZZFAKE", "expect_found": false}

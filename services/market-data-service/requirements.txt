@@ -1,0 +1,7 @@
+# market-data-service runs in place (not installed), same reasoning as
+# rag-service (see rag-service DECISIONS.md #2).
+-e ../../packages/shared
+fastapi>=0.115
+uvicorn[standard]>=0.30
+yfinance>=0.2
+pytest>=8.0

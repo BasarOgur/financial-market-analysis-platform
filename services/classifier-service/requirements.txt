@@ -1,0 +1,8 @@
+# classifier-service runs in place (not installed), same as rag-service.
+# See rag-service/DECISIONS.md #2 and this service's DECISIONS.md.
+-e ../../packages/shared
+fastapi>=0.115
+uvicorn[standard]>=0.30
+chromadb>=1.0        # only for the keyless local embedding provider
+scikit-learn>=1.5    # trained path: logistic regression on embeddings
+pytest>=8.0

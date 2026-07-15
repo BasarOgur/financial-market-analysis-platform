@@ -1,0 +1,7 @@
+# chatbot-orchestrator runs in place (not installed), same as rag-service.
+# See rag-service/DECISIONS.md #2.
+-e ../../packages/shared
+fastapi>=0.115
+uvicorn[standard]>=0.30
+httpx>=0.27
+pytest>=8.0

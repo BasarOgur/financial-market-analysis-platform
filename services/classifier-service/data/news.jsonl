@@ -1,0 +1,72 @@
+{"id": "r01", "split": "train", "text": "BlueRiver Bancorp reported first-quarter profit up 19%, beating analyst estimates on stronger loan growth.", "sentiment": "bullish", "topics": ["earnings"]}
+{"id": "r02", "split": "train", "text": "Crestline Media's quarterly revenue rose 15%, topping forecasts, as streaming subscriptions hit a record.", "sentiment": "bullish", "topics": ["earnings"]}
+{"id": "r03", "split": "train", "text": "Solaris Materials raised its full-year earnings guidance after a stronger-than-expected second quarter.", "sentiment": "bullish", "topics": ["earnings"]}
+{"id": "r04", "split": "train", "text": "Northwind Semiconductors reported a 12% drop in quarterly revenue and guided below consensus for the current quarter.", "sentiment": "bearish", "topics": ["earnings"]}
+{"id": "r05", "split": "train", "text": "Helios Renewables swung to a quarterly loss as project delays pushed revenue below expectations.", "sentiment": "bearish", "topics": ["earnings"]}
+{"id": "r06", "split": "train", "text": "Vertex Logistics' profit fell 30% last quarter, missing estimates, on higher fuel and labor costs.", "sentiment": "bearish", "topics": ["earnings"]}
+{"id": "r07", "split": "train", "text": "Meridian Health will hold its quarterly earnings call on Thursday at 5 p.m. Eastern.", "sentiment": "neutral", "topics": ["earnings"]}
+{"id": "r08", "split": "train", "text": "Apex Retail reported quarterly results in line with analyst expectations, with revenue flat year over year.", "sentiment": "neutral", "topics": ["earnings"]}
+{"id": "r09", "split": "train", "text": "Solaris Materials filed its annual report, restating segment figures with no change to consolidated totals.", "sentiment": "neutral", "topics": ["earnings"]}
+{"id": "r10", "split": "train", "text": "Apex Retail agreed to buy online marketplace ShopHive for $1.8 billion, expanding its e-commerce reach.", "sentiment": "bullish", "topics": ["m&a"]}
+{"id": "r11", "split": "train", "text": "Shares of Crestline Media surged on reports that a private equity consortium is preparing a buyout offer.", "sentiment": "bullish", "topics": ["m&a"]}
+{"id": "r12", "split": "train", "text": "BlueRiver Bancorp's acquisition of a regional lender closed ahead of schedule and is expected to add to earnings in year one.", "sentiment": "bullish", "topics": ["m&a"]}
+{"id": "r13", "split": "train", "text": "Vertex Logistics walked away from its planned merger with FreightLink, forfeiting a $200 million breakup fee.", "sentiment": "bearish", "topics": ["m&a"]}
+{"id": "r14", "split": "train", "text": "Helios Renewables' takeover of VoltCore faces an extended regulatory review, delaying closing by up to a year.", "sentiment": "bearish", "topics": ["m&a", "regulation"]}
+{"id": "r15", "split": "train", "text": "Meridian Health completed the previously announced sale of its dental unit; terms were unchanged from the July agreement.", "sentiment": "neutral", "topics": ["m&a"]}
+{"id": "r16", "split": "train", "text": "Northwind Semiconductors said it routinely evaluates acquisition opportunities and declined to comment on deal speculation.", "sentiment": "neutral", "topics": ["m&a"]}
+{"id": "r17", "split": "train", "text": "Regulators approved BlueRiver Bancorp's plan to resume share buybacks after it passed the annual stress test.", "sentiment": "bullish", "topics": ["regulation", "other"]}
+{"id": "r18", "split": "train", "text": "The environmental agency granted Helios Renewables permits for its two largest solar projects, clearing the path to construction.", "sentiment": "bullish", "topics": ["regulation"]}
+{"id": "r19", "split": "train", "text": "Meridian Health received a warning letter from the FDA over manufacturing practices at its Ohio plant.", "sentiment": "bearish", "topics": ["regulation"]}
+{"id": "r20", "split": "train", "text": "A court ruled against Northwind Semiconductors in a patent dispute, exposing it to up to $900 million in damages.", "sentiment": "bearish", "topics": ["regulation"]}
+{"id": "r21", "split": "train", "text": "Apex Retail faces a class-action lawsuit alleging it mislabeled product origins across its private-label brands.", "sentiment": "bearish", "topics": ["regulation", "product"]}
+{"id": "r22", "split": "train", "text": "The securities regulator opened a routine comment period on proposed disclosure rules for mid-cap issuers.", "sentiment": "neutral", "topics": ["regulation"]}
+{"id": "r23", "split": "train", "text": "Crestline Media said it is cooperating with a regulatory inquiry into industry-wide ad-measurement practices.", "sentiment": "neutral", "topics": ["regulation"]}
+{"id": "r24", "split": "train", "text": "Cooling inflation data fueled a broad market rally, with retail and consumer stocks among the biggest gainers.", "sentiment": "bullish", "topics": ["macro"]}
+{"id": "r25", "split": "train", "text": "Strong jobs numbers and resilient consumer spending lifted forecasts for fourth-quarter GDP growth.", "sentiment": "bullish", "topics": ["macro"]}
+{"id": "r26", "split": "train", "text": "Manufacturing activity contracted for the fifth consecutive month, deepening fears of an industrial recession.", "sentiment": "bearish", "topics": ["macro"]}
+{"id": "r27", "split": "train", "text": "The central bank signaled rates will stay higher for longer, pressuring rate-sensitive sectors.", "sentiment": "bearish", "topics": ["macro"]}
+{"id": "r28", "split": "train", "text": "A stronger dollar is expected to shave several points off multinational earnings this quarter, strategists warned.", "sentiment": "bearish", "topics": ["macro"]}
+{"id": "r29", "split": "train", "text": "The treasury will auction $60 billion in 10-year notes next week, in line with the previous schedule.", "sentiment": "neutral", "topics": ["macro"]}
+{"id": "r30", "split": "train", "text": "Economists are split on whether the central bank will cut rates at its December meeting.", "sentiment": "neutral", "topics": ["macro"]}
+{"id": "r31", "split": "train", "text": "Meridian Health's new glucose monitor won strong early reviews, with preorders exceeding internal targets.", "sentiment": "bullish", "topics": ["product"]}
+{"id": "r32", "split": "train", "text": "Northwind's latest server processor secured design wins at three of the five largest cloud providers.", "sentiment": "bullish", "topics": ["product"]}
+{"id": "r33", "split": "train", "text": "Apex Retail's loyalty app topped download charts within a week of launch, driving record holiday foot traffic.", "sentiment": "bullish", "topics": ["product"]}
+{"id": "r34", "split": "train", "text": "Crestline Media shut down its short-form video app two years after launch, citing weak engagement.", "sentiment": "bearish", "topics": ["product"]}
+{"id": "r35", "split": "train", "text": "Solaris Materials halted shipments of a key coating product after customers reported quality defects.", "sentiment": "bearish", "topics": ["product"]}
+{"id": "r36", "split": "train", "text": "Helios Renewables will begin taking orders for its commercial battery system in the fall.", "sentiment": "neutral", "topics": ["product"]}
+{"id": "r37", "split": "train", "text": "Vertex Logistics is piloting autonomous delivery vans in two cities, with results expected next year.", "sentiment": "neutral", "topics": ["product"]}
+{"id": "r38", "split": "train", "text": "Solaris Materials announced a $2 billion share buyback and a 10% dividend increase.", "sentiment": "bullish", "topics": ["other"]}
+{"id": "r39", "split": "train", "text": "Veteran operator Dana Whitfield was named chief executive of Vertex Logistics, a hire investors welcomed.", "sentiment": "bullish", "topics": ["other"]}
+{"id": "r40", "split": "train", "text": "BlueRiver Bancorp's chief financial officer resigned amid an internal accounting review.", "sentiment": "bearish", "topics": ["other"]}
+{"id": "r41", "split": "train", "text": "Crestline Media was dropped from the midcap index following its market-value decline.", "sentiment": "bearish", "topics": ["other"]}
+{"id": "r42", "split": "train", "text": "Northwind Semiconductors will hold its annual shareholder meeting virtually on May 12.", "sentiment": "neutral", "topics": ["other"]}
+{"id": "r43", "split": "train", "text": "Apex Retail appointed two new independent directors to its board, effective immediately.", "sentiment": "neutral", "topics": ["other"]}
+{"id": "r44", "split": "train", "text": "Helios Renewables beat quarterly estimates on surging battery sales and announced a $500 million buyback.", "sentiment": "bullish", "topics": ["earnings", "other"]}
+{"id": "r45", "split": "train", "text": "Meridian Health lowered guidance, blaming new reimbursement rules that squeeze margins on implants.", "sentiment": "bearish", "topics": ["earnings", "regulation"]}
+{"id": "r46", "split": "train", "text": "Northwind warned that new export restrictions on advanced chips will cut its data-center revenue by up to 8%.", "sentiment": "bearish", "topics": ["regulation", "macro"]}
+{"id": "r47", "split": "train", "text": "BlueRiver Bancorp raised its net interest income outlook, citing the higher-rate environment.", "sentiment": "bullish", "topics": ["earnings", "macro"]}
+{"id": "r48", "split": "train", "text": "Vertex Logistics acquired a customs-brokerage firm and launched a cross-border shipping product built on it.", "sentiment": "neutral", "topics": ["m&a", "product"]}
+{"id": "t01", "split": "test", "text": "Northwind Semiconductors posted record third-quarter revenue of $2.1 billion, up 24% year over year, and raised full-year guidance.", "sentiment": "bullish", "topics": ["earnings"]}
+{"id": "t02", "split": "test", "text": "Meridian Health cut its annual profit forecast after quarterly earnings missed estimates on weaker elective-procedure volumes.", "sentiment": "bearish", "topics": ["earnings"]}
+{"id": "t03", "split": "test", "text": "Apex Retail Group will report fourth-quarter results on March 4 before markets open.", "sentiment": "neutral", "topics": ["earnings"]}
+{"id": "t04", "split": "test", "text": "Helios Renewables agreed to acquire battery maker VoltCore for $3.2 billion, a deal analysts say strengthens its storage pipeline.", "sentiment": "bullish", "topics": ["m&a"]}
+{"id": "t05", "split": "test", "text": "Antitrust regulators sued to block Vertex Logistics' proposed merger with FreightLink, citing reduced competition on key routes.", "sentiment": "bearish", "topics": ["m&a", "regulation"]}
+{"id": "t06", "split": "test", "text": "Crestline Media confirmed it has held preliminary talks about a possible sale of its podcast unit; no decision has been made.", "sentiment": "neutral", "topics": ["m&a"]}
+{"id": "t07", "split": "test", "text": "BlueRiver Bancorp was fined $450 million by regulators over compliance failures in its anti-money-laundering program.", "sentiment": "bearish", "topics": ["regulation"]}
+{"id": "t08", "split": "test", "text": "The FDA granted Meridian Health's cardiac implant fast-track designation, shortening its expected approval timeline.", "sentiment": "bullish", "topics": ["regulation", "product"]}
+{"id": "t09", "split": "test", "text": "New capital-requirement rules for mid-size lenders take effect in January; BlueRiver said it already meets the thresholds.", "sentiment": "neutral", "topics": ["regulation"]}
+{"id": "t10", "split": "test", "text": "Shares of Apex Retail fell after data showed consumer spending contracted for a third straight month amid persistent inflation.", "sentiment": "bearish", "topics": ["macro"]}
+{"id": "t11", "split": "test", "text": "The central bank's surprise rate cut lifted rate-sensitive stocks, with homebuilders and utilities rallying.", "sentiment": "bullish", "topics": ["macro"]}
+{"id": "t12", "split": "test", "text": "The central bank held rates steady, as most economists expected, and repeated its data-dependent guidance.", "sentiment": "neutral", "topics": ["macro"]}
+{"id": "t13", "split": "test", "text": "Northwind unveiled its next-generation AI accelerator chip, claiming twice the performance of rivals at similar power draw; preorders open next month.", "sentiment": "bullish", "topics": ["product"]}
+{"id": "t14", "split": "test", "text": "Helios Renewables recalled 40,000 home batteries after reports of overheating, halting sales of its flagship product line.", "sentiment": "bearish", "topics": ["product"]}
+{"id": "t15", "split": "test", "text": "Crestline Media will launch its ad-supported streaming tier in Europe in the second quarter.", "sentiment": "neutral", "topics": ["product"]}
+{"id": "t16", "split": "test", "text": "Vertex Logistics will join the S&P 500 index next week, replacing a departing constituent.", "sentiment": "bullish", "topics": ["other"]}
+{"id": "t17", "split": "test", "text": "Apex Retail's chief executive resigned abruptly after two years, the third senior departure this year; no successor was named.", "sentiment": "bearish", "topics": ["other"]}
+{"id": "t18", "split": "test", "text": "BlueRiver Bancorp will move its headquarters to Charlotte next year; the bank said the relocation will not affect staffing levels.", "sentiment": "neutral", "topics": ["other"]}
+{"id": "t19", "split": "test", "text": "Meridian Health beat quarterly estimates as sales of its new surgical robot doubled, and management raised its outlook.", "sentiment": "bullish", "topics": ["earnings", "product"]}
+{"id": "t20", "split": "test", "text": "Vertex Logistics missed earnings expectations and warned that freight demand remains weak as the industrial slowdown deepens.", "sentiment": "bearish", "topics": ["earnings", "macro"]}
+{"id": "t21", "split": "test", "text": "Solaris Materials shares jumped after a rival submitted an unsolicited takeover bid at a 35% premium.", "sentiment": "bullish", "topics": ["m&a"]}
+{"id": "t22", "split": "test", "text": "New tariffs on imported components will raise costs across the chip sector, Northwind warned, trimming its margin guidance.", "sentiment": "bearish", "topics": ["regulation", "macro"]}
+{"id": "t23", "split": "test", "text": "Solaris Materials declared a quarterly dividend of $0.28 per share, unchanged from the prior quarter.", "sentiment": "neutral", "topics": ["other"]}
+{"id": "t24", "split": "test", "text": "Crestline Media acquired a small game studio to expand its interactive content lineup; terms were not disclosed.", "sentiment": "neutral", "topics": ["m&a", "product"]}
