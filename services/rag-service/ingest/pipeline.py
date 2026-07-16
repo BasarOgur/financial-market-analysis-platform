@@ -72,11 +72,8 @@ def chunk_documents(docs: list[Document]) -> list[Chunk]:
     return chunks
 
 
-def ingest(data_dir: str | Path, collection, embedder: EmbeddingClient) -> IngestStats:
-    """Chunk every document in data_dir and upsert into the Chroma collection."""
-    docs = load_documents(data_dir)
-    chunks = chunk_documents(docs)
-    log.info("embedding %d chunks from %d documents", len(chunks), len(docs))
+def _embed_and_upsert(chunks: list[Chunk], collection, embedder: EmbeddingClient) -> None:
+    log.info("embedding %d chunks", len(chunks))
     vectors = embedder.embed([c.text for c in chunks], task="document")
     collection.upsert(
         ids=[c.chunk_id for c in chunks],
@@ -85,4 +82,36 @@ def ingest(data_dir: str | Path, collection, embedder: EmbeddingClient) -> Inges
         metadatas=[c.meta for c in chunks],
     )
     log.info("ingested %d chunks into collection %r", len(chunks), collection.name)
+
+
+def ingest(data_dir: str | Path, collection, embedder: EmbeddingClient) -> IngestStats:
+    """Chunk every document in data_dir and upsert into the Chroma collection."""
+    docs = load_documents(data_dir)
+    chunks = chunk_documents(docs)
+    _embed_and_upsert(chunks, collection, embedder)
     return IngestStats(documents=len(docs), chunks=len(chunks))
+
+
+def ingest_document(doc: Document, collection, embedder: EmbeddingClient) -> IngestStats:
+    """Chunk, embed, and upsert a single already-loaded document (e.g. a user upload)."""
+    chunks = chunk_text(doc.text, doc.doc_id, doc.meta)
+    _embed_and_upsert(chunks, collection, embedder)
+    return IngestStats(documents=1, chunks=len(chunks))
+
+
+def extract_text(filename: str, data: bytes) -> str:
+    """Plain text for .md/.txt; extracted text for .pdf.
+
+    Raises ValueError on an unsupported extension.
+    """
+    ext = Path(filename).suffix.lower()
+    if ext in (".md", ".txt"):
+        return data.decode("utf-8", errors="replace")
+    if ext == ".pdf":
+        from io import BytesIO
+
+        from pypdf import PdfReader
+
+        reader = PdfReader(BytesIO(data))
+        return "\n\n".join(page.extract_text() or "" for page in reader.pages)
+    raise ValueError(f"unsupported file type {ext!r}; allowed: .pdf, .md, .txt")

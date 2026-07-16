@@ -27,6 +27,14 @@ class Retriever:
         self._collection = collection
         self._embedder = embedder
 
+    @property
+    def collection(self):
+        return self._collection
+
+    @property
+    def embedder(self) -> EmbeddingClient:
+        return self._embedder
+
     def retrieve(self, query: str, top_k: int = 5) -> list[RetrievedChunk]:
         [query_vec] = self._embedder.embed([query], task="query")
         res = self._collection.query(

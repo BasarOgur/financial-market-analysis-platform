@@ -40,6 +40,29 @@ def test_query_validation_rejects_bad_input(client):
     assert client.post("/v1/query", json={}).status_code == 422
 
 
+def test_upload_document_ingests_and_is_retrievable(client):
+    resp = client.post(
+        "/v1/documents",
+        files={"file": ("notes.txt", b"Zenith Robotics grew backlog 40% in Q3.", "text/plain")},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["documents"] == 1
+    assert body["chunks"] == 1
+
+    q = client.post("/v1/query", json={"question": "Zenith backlog growth", "generate_answer": False})
+    assert q.status_code == 200
+    assert any(c["chunk_id"].startswith("upload-notes") for c in q.json()["citations"])
+
+
+def test_upload_document_rejects_unsupported_extension(client):
+    resp = client.post(
+        "/v1/documents",
+        files={"file": ("data.csv", b"a,b\n1,2", "text/csv")},
+    )
+    assert resp.status_code == 400
+
+
 def test_generation_unavailable_maps_to_503(eval_collection, fake_embedder):
     _ingest(eval_collection, fake_embedder, {"doc": "text"})
     service = RagService(Retriever(eval_collection, fake_embedder), llm=None, llm_error="no key")

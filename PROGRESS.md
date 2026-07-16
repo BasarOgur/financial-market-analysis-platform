@@ -1,5 +1,27 @@
 # Progress
 
+## 2026-07-16 — rag-service document upload endpoint
+
+### Done
+
+- **`POST /v1/documents`** on rag-service: multipart file upload (`.pdf`,
+  `.md`, `.txt`) → text extraction (`pypdf` for PDF) → same chunk/embed/upsert
+  pipeline as fixture ingest → `IngestStats` response. Uploaded docs are
+  queryable immediately, no reingest step.
+  - `ingest/pipeline.py`: added `extract_text`, `ingest_document`, and a
+    shared `_embed_and_upsert` helper factored out of `ingest()`.
+  - `Retriever`/`RagService` gained read-only `.collection`/`.embedder` and
+    `.retriever` properties so the endpoint can reach the already-open
+    Chroma collection without re-plumbing config.
+  - New deps: `pypdf` (PDF text extraction), `python-multipart` (FastAPI
+    requires it for file uploads).
+  - Tests: `tests/test_pipeline.py` (extract_text, ingest_document) +
+    `tests/test_api.py` (upload roundtrip incl. retrieval, rejected
+    extension). 22/22 rag-service tests pass.
+- Resolves the "no document upload" limitation flagged 2026-07-15 below.
+  Web chat UI still has no upload button — API-only for now (see PROGRESS
+  note in `project_finished_explanation.md` #9).
+
 ## 2026-07-15 — Chat UI + .env cleanup
 
 ### Done
@@ -20,10 +42,8 @@
 
 ### Known limitation (not built, flagged to user)
 
-- **No document upload.** rag-service only auto-ingests the fixture files in
-  `data/fixtures` on startup; there's no API/UI for a user to add their own
-  documents. Out of scope for this run — user asked for chat UI only, not
-  upload, when given the choice.
+- ~~**No document upload.**~~ Fixed 2026-07-16 — see `POST /v1/documents`
+  above. UI still has no upload button, API-only.
 
 ## 2026-07-15 — market-data-service run
 

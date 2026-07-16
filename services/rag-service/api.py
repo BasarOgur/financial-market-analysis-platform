@@ -12,6 +12,7 @@ Keyless mode (no API keys; retrieval works, generation returns 503):
 Contract for the future orchestrator:
     GET  /v1/tool-schema  -> shared.contracts.ToolDefinition (register as LLM tool)
     POST /v1/query        -> RagQueryRequest -> RagQueryResponse
+    POST /v1/documents    -> multipart file upload (.pdf/.md/.txt) -> IngestStats
     GET  /healthz
 """
 
@@ -20,9 +21,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 
 from shared.config import load_settings
 from shared.contracts import RAG_TOOL, RagQueryRequest, RagQueryResponse, ToolDefinition
@@ -30,10 +33,12 @@ from shared.embeddings import embeddings_from_settings
 from shared.llm import LLMError, llm_from_settings
 from shared.logging import get_logger, setup_logging
 
-from ingest.pipeline import ingest
+from ingest.pipeline import Document, IngestStats, extract_text, ingest, ingest_document
 from retrieval.retriever import Retriever
 from retrieval.store import open_collection
 from service import LLMUnavailable, RagService
+
+ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".md", ".txt"}
 
 log = get_logger("rag.api")
 
@@ -88,6 +93,27 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except LLMError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    @app.post("/v1/documents", response_model=IngestStats)
+    async def upload_document(file: UploadFile = File(...)) -> IngestStats:
+        ext = Path(file.filename or "").suffix.lower()
+        if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"unsupported file type {ext!r}; allowed: .pdf, .md, .txt",
+            )
+        data = await file.read()
+        try:
+            text = extract_text(file.filename, data)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="no extractable text in file")
+
+        slug = re.sub(r"[^a-zA-Z0-9_-]+", "-", Path(file.filename).stem).strip("-").lower()
+        doc = Document(doc_id=f"upload-{slug}", text=text, meta={"source": file.filename})
+        retriever = app.state.rag.retriever
+        return ingest_document(doc, retriever.collection, retriever.embedder)
 
     return app
 
