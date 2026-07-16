@@ -127,7 +127,7 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
 
         # basename only (drop any path segments) + strip control chars + cap length,
         # since this is stored as metadata and echoed back verbatim in query citations
-        raw_name = Path(file.filename).name
+        raw_name = Path(file.filename.replace("\\", "/")).name
         clean_name = "".join(ch for ch in raw_name if ch.isprintable())[:MAX_SOURCE_NAME_LEN] or "upload"
 
         slug = re.sub(r"[^a-zA-Z0-9_-]+", "-", Path(clean_name).stem).strip("-").lower() or "file"

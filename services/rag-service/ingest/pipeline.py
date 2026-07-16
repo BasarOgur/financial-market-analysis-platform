@@ -111,7 +111,11 @@ def extract_text(filename: str, data: bytes) -> str:
         from io import BytesIO
 
         from pypdf import PdfReader
+        from pypdf.errors import PdfReadError
 
-        reader = PdfReader(BytesIO(data))
-        return "\n\n".join(page.extract_text() or "" for page in reader.pages)
+        try:
+            reader = PdfReader(BytesIO(data))
+            return "\n\n".join(page.extract_text() or "" for page in reader.pages)
+        except PdfReadError as exc:
+            raise ValueError(f"could not read pdf: {exc}") from exc
     raise ValueError(f"unsupported file type {ext!r}; allowed: .pdf, .md, .txt")

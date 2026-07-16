@@ -13,6 +13,11 @@ def test_extract_text_rejects_unsupported_extension():
         extract_text("data.csv", b"a,b\n1,2")
 
 
+def test_extract_text_rejects_malformed_pdf():
+    with pytest.raises(ValueError):
+        extract_text("broken.pdf", b"not a real pdf")
+
+
 def test_ingest_document_chunks_and_upserts(eval_collection, fake_embedder):
     doc = Document(doc_id="upload-x", text="Backlog grew 40% in Q3.", meta={"source": "x.txt"})
     stats = ingest_document(doc, eval_collection, fake_embedder)

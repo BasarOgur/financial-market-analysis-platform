@@ -142,3 +142,11 @@ bytes is idempotent by construction. Upload is capped at 20MB
 stripped of control characters and capped at 200 chars, since the raw
 filename came from the client, is persisted, and is echoed back verbatim in
 query citations.
+**Deps:** `pypdf` (PDF text extraction) and `python-multipart` (FastAPI's
+required parser for `UploadFile`/`File()` form data) are new runtime deps for
+this feature. **Rejected:** `pdfplumber`/`PyMuPDF` — heavier (PyMuPDF is a
+C-extension binding to MuPDF; pdfplumber pulls in `pdfminer.six` plus image
+libs) for text-only extraction with no layout/table needs here. `pypdf` is
+pure-Python, small, and already the de facto standard for this exact job.
+`python-multipart` isn't optional — FastAPI raises at import time on any
+`File()`/`Form()` route without it.
