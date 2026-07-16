@@ -119,3 +119,26 @@ paid tier. Added `eval/run_eval.py --limit N` to run a quota-sized subset;
 `eval/results.md` documents the answer-quality section as partial until the
 daily cap resets. This is a real constraint, not a bug — retrying harder
 can't out-wait a daily quota.
+
+## 12. Upload gate is a shared-secret header, not real auth
+
+**Chose:** `POST /v1/documents` checks an optional `X-Upload-Token` header
+against `RAG_UPLOAD_TOKEN` (env var); unset means the endpoint stays open,
+matching every other endpoint in this service.
+**Rejected:** no gate at all; a full auth/session system.
+**Why:** every endpoint here is unauthenticated by design (services run
+standalone, behind a trusted orchestrator per CLAUDE.md). But `/v1/query` is
+read-only while `/v1/documents` writes into the shared Chroma collection —
+open to the network, it's a data-poisoning vector (anyone can inject content
+that later answers cite as fact). A real auth system is out of scope for a
+single-service dev tool; a shared secret is the smallest thing that lets an
+operator close the endpoint when it's actually network-reachable, without
+touching the no-auth posture of the rest of the service.
+**Also:** upload doc_id is `upload-{slug}-{sha256(content)[:8]}` (not just the
+filename slug) so two different files that slug to the same name don't
+silently overwrite each other's chunks in Chroma; re-uploading identical
+bytes is idempotent by construction. Upload is capped at 20MB
+(`MAX_UPLOAD_BYTES`) and the stored `source` metadata is the basename only,
+stripped of control characters and capped at 200 chars, since the raw
+filename came from the client, is persisted, and is echoed back verbatim in
+query citations.

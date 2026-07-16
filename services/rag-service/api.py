@@ -19,13 +19,14 @@ Contract for the future orchestrator:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, UploadFile
 
 from shared.config import load_settings
 from shared.contracts import RAG_TOOL, RagQueryRequest, RagQueryResponse, ToolDefinition
@@ -39,11 +40,17 @@ from retrieval.store import open_collection
 from service import LLMUnavailable, RagService
 
 ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".md", ".txt"}
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB
+MAX_SOURCE_NAME_LEN = 200
 
 log = get_logger("rag.api")
 
 DATA_DIR = os.environ.get("RAG_DATA_DIR", "data/fixtures")
 CHROMA_DIR = os.environ.get("RAG_CHROMA_DIR", ".chroma")
+# ponytail: shared-secret gate, not real auth. Unset -> upload stays open for
+# local/demo use like every other endpoint here. Set it for anything network-
+# reachable, since this endpoint writes into the shared knowledge base.
+UPLOAD_TOKEN = os.environ.get("RAG_UPLOAD_TOKEN")
 
 
 def build_service(reingest: bool = False) -> RagService:
@@ -95,14 +102,22 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
             raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     @app.post("/v1/documents", response_model=IngestStats)
-    async def upload_document(file: UploadFile = File(...)) -> IngestStats:
+    async def upload_document(
+        file: UploadFile = File(...),
+        x_upload_token: str | None = Header(default=None),
+    ) -> IngestStats:
+        if UPLOAD_TOKEN and x_upload_token != UPLOAD_TOKEN:
+            raise HTTPException(status_code=401, detail="missing or invalid X-Upload-Token")
+
         ext = Path(file.filename or "").suffix.lower()
         if ext not in ALLOWED_UPLOAD_EXTENSIONS:
             raise HTTPException(
                 status_code=400,
                 detail=f"unsupported file type {ext!r}; allowed: .pdf, .md, .txt",
             )
-        data = await file.read()
+        data = await file.read(MAX_UPLOAD_BYTES + 1)
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail=f"file exceeds {MAX_UPLOAD_BYTES} byte limit")
         try:
             text = extract_text(file.filename, data)
         except ValueError as exc:
@@ -110,8 +125,18 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
         if not text.strip():
             raise HTTPException(status_code=400, detail="no extractable text in file")
 
-        slug = re.sub(r"[^a-zA-Z0-9_-]+", "-", Path(file.filename).stem).strip("-").lower()
-        doc = Document(doc_id=f"upload-{slug}", text=text, meta={"source": file.filename})
+        # basename only (drop any path segments) + strip control chars + cap length,
+        # since this is stored as metadata and echoed back verbatim in query citations
+        raw_name = Path(file.filename).name
+        clean_name = "".join(ch for ch in raw_name if ch.isprintable())[:MAX_SOURCE_NAME_LEN] or "upload"
+
+        slug = re.sub(r"[^a-zA-Z0-9_-]+", "-", Path(clean_name).stem).strip("-").lower() or "file"
+        content_hash = hashlib.sha256(data).hexdigest()[:8]
+        doc = Document(
+            doc_id=f"upload-{slug}-{content_hash}",
+            text=text,
+            meta={"source": clean_name},
+        )
         retriever = app.state.rag.retriever
         return ingest_document(doc, retriever.collection, retriever.embedder)
 
