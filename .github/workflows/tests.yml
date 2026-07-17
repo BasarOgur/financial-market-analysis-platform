@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [rag-service, classifier-service, chatbot-orchestrator, market-data-service]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        working-directory: services/${{ matrix.service }}
+        run: python -m pip install -r requirements.txt
+      - name: Run tests
+        working-directory: services/${{ matrix.service }}
+        env:
+          FMA_EMBEDDING_PROVIDER: local
+        run: python -m pytest -q
