@@ -34,7 +34,7 @@ from shared.embeddings import embeddings_from_settings
 from shared.llm import LLMError, llm_from_settings
 from shared.logging import get_logger, setup_logging
 
-from ingest.pipeline import Document, IngestStats, extract_text, ingest, ingest_document
+from ingest.pipeline import Document, IngestStats, extract_text, ingest, ingest_document, persist_upload
 from retrieval.retriever import Retriever
 from retrieval.store import open_collection
 from service import LLMUnavailable, RagService
@@ -138,7 +138,9 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
             meta={"source": clean_name},
         )
         retriever = app.state.rag.retriever
-        return ingest_document(doc, retriever.collection, retriever.embedder)
+        stats = ingest_document(doc, retriever.collection, retriever.embedder)
+        persist_upload(doc, DATA_DIR)
+        return stats
 
     return app
 

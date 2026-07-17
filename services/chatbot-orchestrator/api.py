@@ -16,6 +16,7 @@ Contract:
     POST /v1/query        -> OrchestratorQueryRequest -> OrchestratorQueryResponse
     GET  /healthz
     GET  /                -> simple chat web UI (static/index.html)
+    POST /v1/documents    -> multipart file, proxied to rag-service (chat UI upload button)
 """
 
 from __future__ import annotations
@@ -26,8 +27,9 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+import httpx
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
 
 from shared.config import load_settings
 from shared.contracts import ORCHESTRATOR_TOOL, OrchestratorQueryRequest, OrchestratorQueryResponse, ToolDefinition
@@ -95,6 +97,20 @@ def create_app(service: OrchestratorService | None = None) -> FastAPI:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except (LLMError, RoutingError) as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    @app.post("/v1/documents")
+    async def upload_document(file: UploadFile = File(...)) -> JSONResponse:
+        # ponytail: dumb proxy to rag-service, same request/response shape it
+        # returns. Keeps the browser same-origin (no CORS) and RAG_URL server-side.
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                resp = await client.post(
+                    f"{RAG_URL}/v1/documents",
+                    files={"file": (file.filename, await file.read(), file.content_type)},
+                )
+        except httpx.TransportError as exc:
+            raise HTTPException(status_code=502, detail=f"rag-service unreachable: {exc}") from exc
+        return JSONResponse(status_code=resp.status_code, content=resp.json())
 
     return app
 

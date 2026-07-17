@@ -65,3 +65,46 @@ def test_malformed_router_reply_maps_to_502(fake_tools):
     with TestClient(create_app(service)) as c:
         resp = c.post("/v1/query", json={"message": "hello"})
         assert resp.status_code == 502
+
+
+class _FakeRagResponse:
+    def __init__(self, status_code, payload):
+        self.status_code = status_code
+        self._payload = payload
+
+    def json(self):
+        return self._payload
+
+
+class _FakeAsyncClient:
+    """Stands in for httpx.AsyncClient so the upload proxy test hits no network."""
+
+    last_request = None
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        return False
+
+    async def post(self, url, files):
+        _FakeAsyncClient.last_request = (url, files)
+        return _FakeRagResponse(200, {"documents": 1, "chunks": 3})
+
+
+def test_upload_document_proxies_to_rag_service(fake_tools, monkeypatch):
+    import api as api_module
+
+    monkeypatch.setattr(api_module.httpx, "AsyncClient", _FakeAsyncClient)
+    llm = ScriptedLLM(replies=[])
+    service = OrchestratorService(fake_tools, llm)
+    with TestClient(create_app(service)) as c:
+        resp = c.post("/v1/documents", files={"file": ("notes.txt", b"hello world", "text/plain")})
+        assert resp.status_code == 200
+        assert resp.json() == {"documents": 1, "chunks": 3}
+        url, files = _FakeAsyncClient.last_request
+        assert url == f"{api_module.RAG_URL}/v1/documents"
+        assert files["file"][0] == "notes.txt"

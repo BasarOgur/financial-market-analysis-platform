@@ -150,3 +150,22 @@ libs) for text-only extraction with no layout/table needs here. `pypdf` is
 pure-Python, small, and already the de facto standard for this exact job.
 `python-multipart` isn't optional — FastAPI raises at import time on any
 `File()`/`Form()` route without it.
+
+## 13. Uploads persist to `data/fixtures` as frontmatter markdown
+
+**Chose:** after `ingest_document` embeds an upload into Chroma,
+`persist_upload` also writes it to `{RAG_DATA_DIR}/{doc_id}.md` with a
+`source:` frontmatter line.
+**Rejected:** leaving uploads Chroma-only.
+**Why:** `--reingest` rebuilds the collection from `load_documents(DATA_DIR)`
+only — Chroma-only uploads would silently vanish on the next reingest
+(embedding-model switch, corpus reset). Writing the same file the fixture
+loader already reads keeps one ingestion path for both fixtures and uploads.
+**Also:** `load_documents` previously recomputed `meta["source"]` from
+`company`/`doc_type`/`period`/`section` unconditionally, discarding any
+pre-set `source` — harmless for fixtures (which never set it) but would have
+replaced an upload's friendly filename with its `source` frontmatter value
+each reingest. Fixed to prefer an explicit `source` if present.
+**Test note:** `tests/test_api.py`'s `client` fixture monkeypatches
+`api.DATA_DIR` to `tmp_path` — without it, upload tests wrote real files into
+the repo's `data/fixtures/` (caught and cleaned up during this change).

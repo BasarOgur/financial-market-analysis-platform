@@ -57,6 +57,7 @@
   }
   button:disabled { opacity: 0.5; cursor: default; }
   .typing { color: var(--muted); font-size: 13px; font-style: italic; }
+  #uploadBtn { background: var(--bot-bubble); color: var(--text); }
 </style>
 </head>
 <body>
@@ -66,6 +67,8 @@
   </header>
   <div id="log"></div>
   <form id="form">
+    <input type="file" id="fileInput" accept=".pdf,.md,.txt" hidden>
+    <button type="button" id="uploadBtn" title="Upload a document (.pdf/.md/.txt)">Upload</button>
     <input type="text" id="input" placeholder="Ask about a filing, a headline, or a ticker..." autocomplete="off">
     <button type="submit" id="send">Send</button>
   </form>
@@ -75,6 +78,8 @@ const log = document.getElementById('log');
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('send');
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
 
 function addMessage(role, text) {
   const wrap = document.createElement('div');
@@ -105,6 +110,29 @@ function addMeta(wrap, toolUsed, disclaimer) {
     wrap.appendChild(d);
   }
 }
+
+uploadBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  fileInput.value = '';
+
+  const typing = addMessage('bot', '');
+  typing.querySelector('.bubble').innerHTML = `<span class="typing">uploading ${file.name}...</span>`;
+
+  const body = new FormData();
+  body.append('file', file);
+  try {
+    const resp = await fetch('/v1/documents', { method: 'POST', body });
+    const data = await resp.json();
+    typing.querySelector('.bubble').textContent = resp.ok
+      ? `Uploaded ${file.name}: ${data.chunks} chunk(s) indexed, ready to query.`
+      : `Upload failed: ${data.detail || resp.statusText}`;
+  } catch (err) {
+    typing.querySelector('.bubble').textContent = `Upload failed: ${err}`;
+  }
+});
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
