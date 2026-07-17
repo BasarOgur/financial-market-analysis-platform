@@ -64,10 +64,14 @@ Defined in `packages/shared/shared/contracts.py`; this service just serves it.
 - `POST /v1/documents` → multipart file upload (field name `file`; `.pdf`,
   `.md`, or `.txt`, 20MB max) → `IngestStats {documents, chunks}`. Runs the
   file through the same chunk/embed/upsert pipeline as fixture ingest; it's
-  queryable immediately. Not part of the two-contract orchestrator surface —
-  an operator/admin path, not an LLM tool. If `RAG_UPLOAD_TOKEN` is set,
-  requires a matching `X-Upload-Token` header (401 otherwise); unset means
-  open, like every other endpoint here. See DECISIONS.md #12.
+  queryable immediately, and also written to `RAG_DATA_DIR` so `--reingest`
+  keeps it (DECISIONS.md #13). Not part of the two-contract orchestrator
+  surface — an operator/admin path, not an LLM tool. If `RAG_UPLOAD_TOKEN` is
+  set, requires a matching `X-Upload-Token` header (401 otherwise); unset
+  means open, like every other endpoint here. See DECISIONS.md #12.
+  chatbot-orchestrator's chat UI proxies to this endpoint via its own
+  `POST /v1/documents` (same-origin, no CORS needed) — the "Upload" button
+  next to the message box.
 
 ## Evaluation
 

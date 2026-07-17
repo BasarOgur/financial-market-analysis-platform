@@ -93,3 +93,27 @@ though nothing currently calls it as a tool.
 exceptions carved out for "the top of the stack." Keeps the door open for a future
 meta-orchestrator or UI to register it the same way it registers rag-service and
 classifier-service.
+
+## 8. Upload button proxies through the orchestrator instead of CORS on rag-service
+
+**Chose:** `POST /v1/documents` on the orchestrator is a thin proxy — it forwards the
+uploaded file to rag-service's own `/v1/documents` (`FMA_RAG_URL`) via `httpx.AsyncClient`
+and returns rag-service's response verbatim. The chat UI's upload button calls this
+same-origin endpoint, not rag-service directly.
+
+**Rejected:** adding `CORSMiddleware` to rag-service so the browser (served from
+`localhost:8002`) could `fetch()` `localhost:8000` directly.
+
+**Why:** rag-service's upload endpoint writes into the shared knowledge base (rag-service
+DECISIONS.md #12 already flags it as a data-poisoning vector); opening it to arbitrary
+browser origins is a bigger surface than an internal proxy that only the orchestrator's own
+already-configured `FMA_RAG_URL` talks to. The proxy is a handful of lines reusing the
+`httpx` dependency already in this service (no new dep, unlike the multipart parsing it
+still needs `python-multipart` for).
+
+**Also (post-review hardening):** the proxy caps the read at rag-service's own 20MB limit
+(rejects with 413 before buffering more) instead of reading an unbounded body into memory,
+forwards an `X-Upload-Token` header through if the caller sent one (so `RAG_UPLOAD_TOKEN`
+still works end-to-end when set on rag-service), and no longer assumes rag-service's
+response is JSON (`resp.json()` failures degrade to a plain-text `detail` instead of a
+500). Caught in Copilot's review of PR #2.

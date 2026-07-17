@@ -10,7 +10,10 @@ from tests.test_retriever import _ingest
 
 
 @pytest.fixture
-def client(eval_collection, fake_embedder, fake_llm):
+def client(eval_collection, fake_embedder, fake_llm, tmp_path, monkeypatch):
+    import api as api_module
+
+    monkeypatch.setattr(api_module, "DATA_DIR", str(tmp_path))
     _ingest(eval_collection, fake_embedder, {"doc": "revenue grew 18% in fiscal 2025"})
     service = RagService(Retriever(eval_collection, fake_embedder), fake_llm)
     with TestClient(create_app(service)) as c:
@@ -87,6 +90,27 @@ def test_upload_requires_token_when_configured(client, monkeypatch):
     assert client.post(
         "/v1/documents", files=files, headers={"X-Upload-Token": "secret123"}
     ).status_code == 200
+
+
+def test_upload_persists_to_disk_and_survives_reingest(client, tmp_path, fake_embedder):
+    import api as api_module
+    from ingest.pipeline import ingest
+
+    resp = client.post(
+        "/v1/documents",
+        files={"file": ("notes.txt", b"Persisted Corp grew revenue 30% in fiscal 2026.", "text/plain")},
+    )
+    assert resp.status_code == 200
+
+    saved = list(tmp_path.glob("upload-notes-*.md"))
+    assert len(saved) == 1
+    assert saved[0].read_text().startswith("---\nsource: notes.txt\n---\n")
+
+    fresh_collection = api_module.open_collection(str(tmp_path / ".chroma-reingest"))
+    stats = ingest(str(tmp_path), fresh_collection, fake_embedder)
+    assert stats.documents == 1
+    got = fresh_collection.get(ids=[f"{saved[0].stem}::000"], include=["metadatas"])
+    assert got["metadatas"][0]["source"] == "notes.txt"
 
 
 def test_generation_unavailable_maps_to_503(eval_collection, fake_embedder):

@@ -1,5 +1,33 @@
 # Progress
 
+## 2026-07-17 — upload UI + upload persistence fixes
+
+### Done
+
+- **chatbot-orchestrator chat UI** (`static/index.html`): "Upload" button next
+  to the message box, `.pdf/.md/.txt` file picker, posts to a new
+  `POST /v1/documents` on the orchestrator that proxies straight through to
+  rag-service's own upload endpoint (`httpx`, no new dep). Kept same-origin on
+  purpose instead of adding CORS to rag-service — see chatbot-orchestrator
+  DECISIONS.md #8.
+- **rag-service upload persistence**: uploads previously only landed in
+  Chroma; a `--reingest` (which rebuilds from `data/fixtures` on disk) would
+  silently drop them. Added `ingest/pipeline.py:persist_upload()` — writes the
+  uploaded doc as frontmatter-tagged markdown into `RAG_DATA_DIR` right after
+  ingesting it, so it survives reingest like any fixture. See rag-service
+  DECISIONS.md #13.
+- **Bug fix while at it**: `load_documents()` was unconditionally recomputing
+  `meta["source"]` from `company`/`doc_type`/`period`/`section`, discarding any
+  explicit `source` frontmatter — harmless for fixtures (never set it) but
+  would have overwritten an upload's filename with a doc-id-derived value on
+  reingest. Now prefers an explicit `source` if present.
+- **Test-pollution catch**: the new persistence path wrote real files into
+  the repo's `services/rag-service/data/fixtures/` during `pytest` (junk
+  `upload-notes-*.md` files) before the `client` fixture was updated to
+  monkeypatch `DATA_DIR` to `tmp_path`. Cleaned up and fixed before this was
+  committed — flagging in case any earlier run left stray files.
+- rag-service: 26/26 tests pass. chatbot-orchestrator: 20/20 tests pass.
+
 ## 2026-07-16 — rag-service document upload endpoint
 
 ### Done

@@ -34,7 +34,7 @@ from shared.embeddings import embeddings_from_settings
 from shared.llm import LLMError, llm_from_settings
 from shared.logging import get_logger, setup_logging
 
-from ingest.pipeline import Document, IngestStats, extract_text, ingest, ingest_document
+from ingest.pipeline import Document, IngestStats, extract_text, ingest, ingest_document, persist_upload
 from retrieval.retriever import Retriever
 from retrieval.store import open_collection
 from service import LLMUnavailable, RagService
@@ -137,8 +137,13 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
             text=text,
             meta={"source": clean_name},
         )
+        # persist before ingest: if embedding/upsert then fails, we'd rather have
+        # an un-indexed file on disk (a later --reingest picks it up) than an
+        # indexed-but-unpersisted doc that --reingest silently drops.
+        persist_upload(doc, DATA_DIR)
         retriever = app.state.rag.retriever
-        return ingest_document(doc, retriever.collection, retriever.embedder)
+        stats = ingest_document(doc, retriever.collection, retriever.embedder)
+        return stats
 
     return app
 

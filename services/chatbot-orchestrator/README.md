@@ -69,6 +69,10 @@ Defined in `packages/shared/shared/contracts.py`; this service just serves it.
 - `POST /v1/query` → `OrchestratorQueryRequest {message}` → `OrchestratorQueryResponse {answer, tool_used, tool_result, model, disclaimer}`.
   503 = no LLM configured; 502 = router returned malformed JSON or a provider error.
 - `GET /` → simple chat web UI (`static/index.html`), talks to `/v1/query` from the browser.
+- `POST /v1/documents` → multipart `file` field, proxied straight through to
+  rag-service's `POST /v1/documents` (same request/response shape). Exists so
+  the browser upload button can hit one origin — no CORS setup on rag-service.
+  502 if rag-service (`FMA_RAG_URL`) is unreachable.
 
 ## Evaluation
 

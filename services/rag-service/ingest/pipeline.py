@@ -56,9 +56,10 @@ def load_documents(data_dir: str | Path) -> list[Document]:
     docs = []
     for path in sorted(Path(data_dir).glob("*.md")):
         meta, body = _parse_frontmatter(path.read_text())
-        meta["source"] = " ".join(
+        computed_source = " ".join(
             filter(None, (meta.get("company"), meta.get("doc_type"), meta.get("period"), meta.get("section")))
-        ) or path.stem
+        )
+        meta["source"] = meta.get("source") or computed_source or path.stem
         docs.append(Document(doc_id=path.stem, text=body, meta=meta))
     if not docs:
         raise FileNotFoundError(f"no .md documents found in {data_dir}")
@@ -97,6 +98,16 @@ def ingest_document(doc: Document, collection, embedder: EmbeddingClient) -> Ing
     chunks = chunk_text(doc.text, doc.doc_id, doc.meta)
     _embed_and_upsert(chunks, collection, embedder)
     return IngestStats(documents=1, chunks=len(chunks))
+
+
+def persist_upload(doc: Document, data_dir: str | Path) -> Path:
+    """Write an uploaded document as frontmatter-tagged markdown into data_dir,
+    so a later `--reingest` (which rebuilds only from disk) doesn't drop it."""
+    path = Path(data_dir) / f"{doc.doc_id}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    source = doc.meta.get("source", doc.doc_id)
+    path.write_text(f"---\nsource: {source}\n---\n{doc.text}")
+    return path
 
 
 def extract_text(filename: str, data: bytes) -> str:
