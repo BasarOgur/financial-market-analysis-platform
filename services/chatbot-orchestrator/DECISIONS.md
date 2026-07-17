@@ -110,3 +110,10 @@ browser origins is a bigger surface than an internal proxy that only the orchest
 already-configured `FMA_RAG_URL` talks to. The proxy is a handful of lines reusing the
 `httpx` dependency already in this service (no new dep, unlike the multipart parsing it
 still needs `python-multipart` for).
+
+**Also (post-review hardening):** the proxy caps the read at rag-service's own 20MB limit
+(rejects with 413 before buffering more) instead of reading an unbounded body into memory,
+forwards an `X-Upload-Token` header through if the caller sent one (so `RAG_UPLOAD_TOKEN`
+still works end-to-end when set on rag-service), and no longer assumes rag-service's
+response is JSON (`resp.json()` failures degrade to a plain-text `detail` instead of a
+500). Caught in Copilot's review of PR #2.

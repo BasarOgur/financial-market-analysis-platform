@@ -137,9 +137,12 @@ def create_app(service: RagService | None = None, *, reingest: bool = False) -> 
             text=text,
             meta={"source": clean_name},
         )
+        # persist before ingest: if embedding/upsert then fails, we'd rather have
+        # an un-indexed file on disk (a later --reingest picks it up) than an
+        # indexed-but-unpersisted doc that --reingest silently drops.
+        persist_upload(doc, DATA_DIR)
         retriever = app.state.rag.retriever
         stats = ingest_document(doc, retriever.collection, retriever.embedder)
-        persist_upload(doc, DATA_DIR)
         return stats
 
     return app

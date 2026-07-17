@@ -90,8 +90,8 @@ class _FakeAsyncClient:
     async def __aexit__(self, *args):
         return False
 
-    async def post(self, url, files):
-        _FakeAsyncClient.last_request = (url, files)
+    async def post(self, url, files, headers=None):
+        _FakeAsyncClient.last_request = (url, files, headers)
         return _FakeRagResponse(200, {"documents": 1, "chunks": 3})
 
 
@@ -102,9 +102,14 @@ def test_upload_document_proxies_to_rag_service(fake_tools, monkeypatch):
     llm = ScriptedLLM(replies=[])
     service = OrchestratorService(fake_tools, llm)
     with TestClient(create_app(service)) as c:
-        resp = c.post("/v1/documents", files={"file": ("notes.txt", b"hello world", "text/plain")})
+        resp = c.post(
+            "/v1/documents",
+            files={"file": ("notes.txt", b"hello world", "text/plain")},
+            headers={"X-Upload-Token": "secret"},
+        )
         assert resp.status_code == 200
         assert resp.json() == {"documents": 1, "chunks": 3}
-        url, files = _FakeAsyncClient.last_request
+        url, files, headers = _FakeAsyncClient.last_request
         assert url == f"{api_module.RAG_URL}/v1/documents"
         assert files["file"][0] == "notes.txt"
+        assert headers == {"X-Upload-Token": "secret"}

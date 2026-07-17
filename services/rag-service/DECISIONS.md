@@ -169,3 +169,9 @@ each reingest. Fixed to prefer an explicit `source` if present.
 **Test note:** `tests/test_api.py`'s `client` fixture monkeypatches
 `api.DATA_DIR` to `tmp_path` — without it, upload tests wrote real files into
 the repo's `data/fixtures/` (caught and cleaned up during this change).
+**Also (post-review hardening):** the handler now calls `persist_upload` *before*
+`ingest_document`, not after — if the disk write fails there's nothing in Chroma yet
+to be inconsistent with; if the embed/upsert step fails instead, the file is already
+on disk and a later `--reingest` will pick it up and retry. The original after-ingest
+order could leave a document indexed in Chroma but never persisted. Caught in
+Copilot's review of PR #2.

@@ -119,13 +119,18 @@ fileInput.addEventListener('change', async () => {
   fileInput.value = '';
 
   const typing = addMessage('bot', '');
-  typing.querySelector('.bubble').innerHTML = `<span class="typing">uploading ${file.name}...</span>`;
+  typing.querySelector('.bubble').textContent = `uploading ${file.name}...`;
 
   const body = new FormData();
   body.append('file', file);
   try {
     const resp = await fetch('/v1/documents', { method: 'POST', body });
-    const data = await resp.json();
+    let data = {};
+    try {
+      data = await resp.json();
+    } catch {
+      data = { detail: resp.statusText };
+    }
     typing.querySelector('.bubble').textContent = resp.ok
       ? `Uploaded ${file.name}: ${data.chunks} chunk(s) indexed, ready to query.`
       : `Upload failed: ${data.detail || resp.statusText}`;

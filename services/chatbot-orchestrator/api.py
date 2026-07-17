@@ -28,7 +28,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 
 from shared.config import load_settings
@@ -44,6 +44,7 @@ log = get_logger("orchestrator.api")
 RAG_URL = os.environ.get("FMA_RAG_URL", "http://localhost:8000")
 CLASSIFIER_URL = os.environ.get("FMA_CLASSIFIER_URL", "http://localhost:8001")
 MARKET_DATA_URL = os.environ.get("FMA_MARKET_DATA_URL", "http://localhost:8003")
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # mirrors rag-service's own cap; reject early rather than buffer huge files
 
 
 def build_service() -> OrchestratorService:
@@ -99,18 +100,30 @@ def create_app(service: OrchestratorService | None = None) -> FastAPI:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     @app.post("/v1/documents")
-    async def upload_document(file: UploadFile = File(...)) -> JSONResponse:
+    async def upload_document(
+        file: UploadFile = File(...),
+        x_upload_token: str | None = Header(default=None),
+    ) -> JSONResponse:
         # ponytail: dumb proxy to rag-service, same request/response shape it
         # returns. Keeps the browser same-origin (no CORS) and RAG_URL server-side.
+        data = await file.read(MAX_UPLOAD_BYTES + 1)
+        if len(data) > MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=413, detail="file too large")
+        headers = {"X-Upload-Token": x_upload_token} if x_upload_token else {}
         try:
             async with httpx.AsyncClient(timeout=60.0) as client:
                 resp = await client.post(
                     f"{RAG_URL}/v1/documents",
-                    files={"file": (file.filename, await file.read(), file.content_type)},
+                    files={"file": (file.filename, data, file.content_type)},
+                    headers=headers,
                 )
         except httpx.TransportError as exc:
             raise HTTPException(status_code=502, detail=f"rag-service unreachable: {exc}") from exc
-        return JSONResponse(status_code=resp.status_code, content=resp.json())
+        try:
+            content = resp.json()
+        except ValueError:
+            content = {"detail": resp.text or "rag-service returned a non-JSON response"}
+        return JSONResponse(status_code=resp.status_code, content=content)
 
     return app
 
