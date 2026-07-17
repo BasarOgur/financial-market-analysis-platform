@@ -27,6 +27,10 @@ class RagService:
         self._llm = llm
         self._llm_error = llm_error or "no LLM configured"
 
+    @property
+    def retriever(self) -> Retriever:
+        return self._retriever
+
     def query(self, request: RagQueryRequest) -> RagQueryResponse:
         chunks = self._retriever.retrieve(request.question, top_k=request.top_k)
         citations = [

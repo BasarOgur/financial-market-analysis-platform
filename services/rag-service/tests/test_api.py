@@ -40,6 +40,55 @@ def test_query_validation_rejects_bad_input(client):
     assert client.post("/v1/query", json={}).status_code == 422
 
 
+def test_upload_document_ingests_and_is_retrievable(client):
+    resp = client.post(
+        "/v1/documents",
+        files={"file": ("notes.txt", b"Zenith Robotics grew backlog 40% in Q3.", "text/plain")},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["documents"] == 1
+    assert body["chunks"] == 1
+
+    q = client.post("/v1/query", json={"question": "Zenith backlog growth", "generate_answer": False})
+    assert q.status_code == 200
+    assert any(c["chunk_id"].startswith("upload-notes") for c in q.json()["citations"])
+
+
+def test_upload_document_rejects_unsupported_extension(client):
+    resp = client.post(
+        "/v1/documents",
+        files={"file": ("data.csv", b"a,b\n1,2", "text/csv")},
+    )
+    assert resp.status_code == 400
+
+
+def test_upload_different_content_same_filename_does_not_collide(client):
+    r1 = client.post("/v1/documents", files={"file": ("notes.txt", b"first document body", "text/plain")})
+    r2 = client.post("/v1/documents", files={"file": ("notes.txt", b"second document body", "text/plain")})
+    assert r1.status_code == r2.status_code == 200
+
+    q = client.post("/v1/query", json={"question": "document body", "top_k": 5, "generate_answer": False})
+    chunk_ids = {c["chunk_id"] for c in q.json()["citations"]}
+    upload_ids = {cid for cid in chunk_ids if cid.startswith("upload-notes")}
+    assert len(upload_ids) == 2  # both kept, neither silently overwrote the other
+
+
+def test_upload_requires_token_when_configured(client, monkeypatch):
+    import api as api_module
+
+    monkeypatch.setattr(api_module, "UPLOAD_TOKEN", "secret123")
+    files = {"file": ("notes.txt", b"some content", "text/plain")}
+
+    assert client.post("/v1/documents", files=files).status_code == 401
+    assert client.post(
+        "/v1/documents", files=files, headers={"X-Upload-Token": "wrong"}
+    ).status_code == 401
+    assert client.post(
+        "/v1/documents", files=files, headers={"X-Upload-Token": "secret123"}
+    ).status_code == 200
+
+
 def test_generation_unavailable_maps_to_503(eval_collection, fake_embedder):
     _ingest(eval_collection, fake_embedder, {"doc": "text"})
     service = RagService(Retriever(eval_collection, fake_embedder), llm=None, llm_error="no key")
